@@ -56,6 +56,11 @@ chatForm.addEventListener("submit", async (e) => {
     // Parse the JSON response
     const data = await response.json();
 
+    // Check if the response has the expected structure
+    if (!data.choices || !data.choices[0] || !data.choices[0].message) {
+      throw new Error("Invalid response format from API");
+    }
+
     // Get the AI's response from the data
     const aiResponse = data.choices[0].message.content;
 
@@ -65,9 +70,29 @@ chatForm.addEventListener("submit", async (e) => {
       <div><strong>Assistant:</strong> ${aiResponse}</div>
     `;
   } catch (error) {
-    // Handle any errors that occur during the API call
+    // Log the full error details for debugging
     console.error("Error connecting to OpenAI API:", error);
-    chatWindow.innerHTML += `<div><strong>Error:</strong> Failed to connect to the API. Please try again.</div>`;
+
+    // Show user-friendly error message based on error type
+    let errorMessage = "Something went wrong. Please try again.";
+
+    // Check for specific error types and provide helpful messages
+    if (error.name === "TypeError" && error.message.includes("fetch")) {
+      errorMessage =
+        "Unable to connect to the server. Please check your internet connection.";
+    } else if (error.message.includes("HTTP error")) {
+      errorMessage =
+        "The server returned an error. Please try again in a moment.";
+    } else if (error.message.includes("Invalid response format")) {
+      errorMessage =
+        "Received an unexpected response from the API. Please try again.";
+    }
+
+    // Display the error message to the user
+    chatWindow.innerHTML = `
+      <div><strong>You:</strong> ${userMessage}</div>
+      <div><strong>Error:</strong> ${errorMessage}</div>
+    `;
   }
 
   // Clear the input field
