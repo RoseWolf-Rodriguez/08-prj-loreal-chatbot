@@ -7,15 +7,31 @@
 
 /* —— body + fonts —— */
 body {
-  font-family: "Montserrat", Arial, Helvetica, sans-serif;
+  font-family: "Montserrat", "Futura", "Avenir", "Century Gothic", Arial,
+    Helvetica, sans-serif;
   color: #333;
   display: flex;
   justify-content: center;
+  background: #000000; /* gold background */
+  min-height: 100vh;
 }
 
+/* Overlay for readability */
 .page-wrapper {
   width: 90%;
   max-width: 900px;
+  background: rgba(
+    255,
+    255,
+    255,
+    0.96
+  ); /* subtle white overlay for readability */
+  box-shadow: 0 4px 32px rgba(0, 0, 0, 0.08);
+  border-radius: 18px;
+  margin: 32px 0;
+  padding: 40px 32px 24px 32px; /* increased padding: top, right, bottom, left */
+  position: relative;
+  z-index: 1;
 }
 
 /* header */
@@ -28,6 +44,8 @@ body {
   font-size: 22px;
   font-weight: 500;
   margin-bottom: 10px;
+  color: #ff003b; /* accent color */
+  font-family: "Georgia", "Times New Roman", Times, serif;
 }
 
 .site-logo {
@@ -44,13 +62,14 @@ body {
 
 .chat-window {
   height: 360px;
-  border: 1px solid #000;
+  border: 1px solid #ff003b; /* accent border */
   padding: 20px;
   font-size: 18px;
   line-height: 1.5;
   overflow-y: auto;
   background: #fafafa;
   white-space: pre-line;
+  border-radius: 8px;
 }
 
 /* messages */
@@ -60,7 +79,7 @@ body {
 }
 
 .msg.user {
-  color: #000;
+  color: #ff003b; /* accent color for user */
 }
 
 .msg.ai {
@@ -79,16 +98,17 @@ body {
   padding: 12px;
   border: 1px solid #ccc;
   font-size: 18px;
+  border-radius: 6px 0 0 6px;
 }
 
 .chat-form input:focus {
-  outline: 2px solid #000;
+  outline: 2px solid #ff003b; /* accent color */
   outline-offset: 2px;
 }
 
 .chat-form button {
   font-size: 18px;
-  background: #000;
+  background: #ff003b; /* accent color */
   color: #fff;
   border: none;
   padding: 12px;
@@ -99,6 +119,7 @@ body {
   justify-content: center;
   cursor: pointer;
   transition: background 0.3s;
+  border-radius: 0 6px 6px 0;
 }
 
 .chat-form button .material-icons {
@@ -106,12 +127,22 @@ body {
 }
 
 .chat-form button:hover {
-  background: #666666;
+  background: #b8002b; /* darker accent on hover */
 }
 
 .chat-form button:focus {
-  outline: 2px solid #000;
+  outline: 2px solid #ff003b;
   outline-offset: 2px;
+}
+
+/* headings in main content and footer */
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-family: "Georgia", "Times New Roman", Times, serif;
 }
 
 /* visually hidden */
@@ -141,10 +172,11 @@ body {
 
 .site-footer a {
   margin: 0 8px;
-  color: #000;
+  color: #ff003b; /* accent color */
   text-decoration: none;
+  font-weight: 500;
 }
 
 .site-footer a:hover {
-  color: #666666;
+  color: #b8002b;
 }
