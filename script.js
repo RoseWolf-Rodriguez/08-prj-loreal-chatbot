@@ -4,6 +4,18 @@ const userInput = document.getElementById("userInput");
 const chatWindow = document.getElementById("chatWindow");
 const workerUrl = "https://test.lteretto.workers.dev/";
 
+// Store the conversation history for context
+const messages = [
+  {
+    role: "system",
+    content:
+      "You are a helpful product advisor assistant who only knows about Loreal products, offering advice on skincare, hair care, facial care, and any other cosmetics Loreal has to offer. You are able to give short descriptions of how to use products and routines.",
+  },
+];
+
+// Optionally track the user's name if provided
+let userName = null;
+
 // Set initial message
 chatWindow.textContent = "👋 Hello! How can I help you today?";
 
@@ -17,26 +29,36 @@ chatForm.addEventListener("submit", async (e) => {
   // Don't send empty messages
   if (!userMessage) return;
 
-  // Show user's message in chat window
-  chatWindow.innerHTML = `<div><strong>You:</strong> ${userMessage}</div>`;
+  // Add user's message to the conversation history
+  messages.push({
+    role: "user",
+    content: userMessage,
+  });
 
-  // Show loading message
-  chatWindow.innerHTML += `<div><strong>Assistant:</strong> Thinking...</div>`;
+  // Try to extract the user's name if they introduce themselves
+  // e.g., "My name is Alice" or "I'm Bob"
+  if (!userName) {
+    const nameMatch = userMessage.match(
+      /(?:my name is|i'm|i am)\s+([a-zA-Z]+)/i
+    );
+    if (nameMatch) {
+      userName = nameMatch[1];
+      // Optionally, add a system message to inform the assistant of the user's name
+      messages.push({
+        role: "system",
+        content: `The user's name is ${userName}.`,
+      });
+    }
+  }
+
+  // Show user's latest question above the assistant's response using message bubbles
+  chatWindow.innerHTML = `
+    <div class="msg user"><strong>You:</strong> ${userMessage}</div>
+    <div class="msg ai"><strong>Assistant:</strong> Thinking...</div>
+  `;
 
   try {
-    // Create messages array for OpenAI API
-    const messages = [
-      {
-        role: "system",
-        content: "You are a helpful product advisor assistant.",
-      },
-      {
-        role: "user",
-        content: userMessage,
-      },
-    ];
-
-    // Send POST request to Cloudflare worker
+    // Send POST request to Cloudflare worker with the full conversation history
     const response = await fetch(workerUrl, {
       method: "POST",
       headers: {
@@ -47,10 +69,6 @@ chatForm.addEventListener("submit", async (e) => {
         model: "gpt-4o",
         temperature: 0.7,
         max_tokens: 800,
-        messages: [
-          { role: "user", content: userMessage },
-          { role: "system", content: "You are a helpful product advisor assistant who only knows about Loreal products, offering advice on skincare, hair care, facial care, and any other cosmetics Loreal had to offer. You are able to give short descriptions of how to use products and routines." },
-        ],
       }),
     });
 
@@ -70,10 +88,16 @@ chatForm.addEventListener("submit", async (e) => {
     // Get the AI's response from the data
     const aiResponse = data.choices[0].message.content;
 
-    // Display the conversation in the chat window
+    // Add assistant's reply to the conversation history
+    messages.push({
+      role: "assistant",
+      content: aiResponse,
+    });
+
+    // Display the user's latest question above the assistant's response using message bubbles
     chatWindow.innerHTML = `
-      <div><strong>You:</strong> ${userMessage}</div>
-      <div><strong>Assistant:</strong> ${aiResponse}</div>
+      <div class="msg user"><strong>You:</strong> ${userMessage}</div>
+      <div class="msg ai"><strong>Assistant:</strong> ${aiResponse}</div>
     `;
   } catch (error) {
     // Log the full error details for debugging
@@ -82,7 +106,6 @@ chatForm.addEventListener("submit", async (e) => {
     // Show user-friendly error message based on error type
     let errorMessage = "Something went wrong. Please try again.";
 
-    // Check for specific error types and provide helpful messages
     if (error.name === "TypeError" && error.message.includes("fetch")) {
       errorMessage =
         "Unable to connect to the server. Please check your internet connection.";
@@ -94,10 +117,9 @@ chatForm.addEventListener("submit", async (e) => {
         "Received an unexpected response from the API. Please try again.";
     }
 
-    // Display the error message to the user
     chatWindow.innerHTML = `
-      <div><strong>You:</strong> ${userMessage}</div>
-      <div><strong>Error:</strong> ${errorMessage}</div>
+      <div class="msg user"><strong>You:</strong> ${userMessage}</div>
+      <div class="msg ai"><strong>Error:</strong> ${errorMessage}</div>
     `;
   }
 
