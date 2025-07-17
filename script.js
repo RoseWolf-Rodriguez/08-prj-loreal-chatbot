@@ -45,6 +45,12 @@ chatForm.addEventListener("submit", async (e) => {
       body: JSON.stringify({
         messages: messages,
         model: "gpt-4o",
+        temperature: 0.7,
+        max_tokens: 800,
+        messages: [
+          { role: "user", content: userMessage },
+          { role: "system", content: "You are a helpful product advisor assistant who only knows about Loreal products, offering advice on skincare, hair care, facial care, and any other cosmetics Loreal had to offer. You are able to give short descriptions of how to use products and routines." },
+        ],
       }),
     });
 
